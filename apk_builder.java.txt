@@ -1,4 +1,39 @@
- public static bool ValidateJwtToken(string token)
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace ApiGateway.Models
+{
+    public class JwtHelper
+    {
+        // Replace this key with a strong and secret key that is at least 256 bits long
+        private static readonly byte[] _signInKey = Encoding.UTF8.GetBytes("MbQeThWmZq4t7w!zMbQeThWmZq4t7w!z");
+
+        
+       
+
+        public static string CreateJwtToken(string clientId, int time)
+        {
+            var claims = new List<Claim>();
+            claims.Add(new Claim("clientId", clientId));
+            
+
+            var id = new ClaimsIdentity(claims);
+            var h = new JwtSecurityTokenHandler();
+            var token = h.CreateToken(new SecurityTokenDescriptor()
+            {
+                Expires = DateTime.UtcNow.AddMinutes(time),
+                Subject = id,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(_signInKey), SecurityAlgorithms.HmacSha256)
+            });
+            return h.WriteToken(token);
+        }
+
+        public static bool ValidateJwtToken(string token)
         {
             var h = new JwtSecurityTokenHandler();
 
@@ -21,3 +56,46 @@
             }
             return true;
         }
+
+        // Additional methods as needed
+
+        private static string GenerateEncryptionKey(string deviceid)
+        {
+            Encoding ascii = Encoding.ASCII;
+            String client_secret = "4138410547411729368";
+            HMACSHA256 hmac = new HMACSHA256(ascii.GetBytes(client_secret));
+            String encryDeviceid = Convert.ToBase64String(hmac.ComputeHash(ascii.GetBytes(deviceid)));
+
+            return encryDeviceid;
+        }
+
+        public static string TokenExpiryTime(string token)
+        {
+            JwtSecurityToken jwtSecurityToken;
+            try
+            {
+                jwtSecurityToken = new JwtSecurityToken(token);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return jwtSecurityToken.ValidTo.ToString();
+        }
+
+        public static string TokenGenerationTime(string token)
+        {
+            JwtSecurityToken jwtSecurityToken;
+            try
+            {
+                jwtSecurityToken = new JwtSecurityToken(token);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return jwtSecurityToken.ValidFrom.ToString();
+        }
+    }
+}
