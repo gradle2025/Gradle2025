@@ -99,3 +99,26 @@ namespace ApiGateway.Models
         }
     }
 }
+var employees = new[]
+{
+    new { Name = "Payal", Department = "HR", Salary = 50000 },
+    new { Name = "Raj", Department = "IT", Salary = 70000 },
+    new { Name = "Pabi", Department = "IT", Salary = 60000 },
+    new { Name = "Soma", Department = "HR", Salary = 55000 }
+};
+
+var result = employees
+    .GroupBy(e => e.Department)
+    .Select(g => new
+    {
+        Department = g.Key,
+        EmployeeCount = g.Count(),
+        TotalSalary = g.Sum(e => e.Salary),
+        AverageSalary = g.Average(e => e.Salary)
+    });
+
+foreach (var r in result)
+{
+    Console.WriteLine($"{r.Department} → Count: {r.EmployeeCount}, Total: {r.TotalSalary}, Avg: {r.AverageSalary}");
+}
+
