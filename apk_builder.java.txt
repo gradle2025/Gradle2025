@@ -121,4 +121,7 @@ foreach (var r in result)
 {
     Console.WriteLine($"{r.Department} → Count: {r.EmployeeCount}, Total: {r.TotalSalary}, Avg: {r.AverageSalary}");
 }
-
+  RequestModel model = JsonConvert.DeserializeObject<RequestModel>(jsonData.ToString());
+ string Authtoken = Request.Headers["Authorization"];
+var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+                string tokenclientId = jwt.Claims.FirstOrDefault(a => a.Type == "clientId")?.Value;
